@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Projects | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="stack">
+    <div class="actions">
+        <h1>Projects</h1>
+        <a class="button" href="{% url 'projects_overview:create' %}">Create project</a>
+    </div>
+
+    {% if projects %}
+    <ul class="goal-list">
+        {% for project in projects %}
+        <li class="card">
+            <h2><a href="{% url 'projects_overview:detail' project.slug %}">{{ project.name }}</a></h2>
+            <p class="goal-meta">
+                {{ project.get_status_display }}
+                {% if project.is_active %}| Active{% else %}| Inactive{% endif %}
+                {% if project.last_updated %}| Updated: {{ project.last_updated }}{% endif %}
+            </p>
+            {% if project.current_focus %}
+            <p><strong>Current focus:</strong> {{ project.current_focus|truncatechars:180 }}</p>
+            {% endif %}
+            {% if project.next_step %}
+            <p><strong>Next step:</strong> {{ project.next_step|truncatechars:180 }}</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="card">
+        <p>No projects yet.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

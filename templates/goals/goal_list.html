@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Goals | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="stack">
+    <div class="actions">
+        <h1>Goals</h1>
+        <a class="button" href="{% url 'goals:create' %}">Create goal</a>
+    </div>
+
+    {% if goals %}
+    <ul class="goal-list">
+        {% for goal in goals %}
+        <li class="card">
+            <h2><a href="{% url 'goals:detail' goal.slug %}">{{ goal.title }}</a></h2>
+            <p class="goal-meta">
+                {{ goal.get_type_display }} | {{ goal.get_status_display }} | {{ goal.get_priority_display }}
+                {% if goal.deadline %}| Deadline: {{ goal.deadline }}{% endif %}
+                {% if goal.is_archived %}| Archived{% endif %}
+            </p>
+            {% if goal.description %}
+            <p>{{ goal.description|truncatechars:180 }}</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="card">
+        <p>No goals yet.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

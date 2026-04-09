@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>{{ page_title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-row">
+            {{ field.label_tag }}
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+        <div class="actions">
+            <button class="button" type="submit">Save goal</button>
+            <a href="{% url 'goals:list' %}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

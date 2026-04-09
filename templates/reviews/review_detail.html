@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Review {{ review.date }} | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="actions">
+        <h1>Review for {{ review.date }}</h1>
+        <a href="{% url 'reviews:history' %}">Back to history</a>
+    </div>
+    <p class="goal-meta">
+        Mood: {{ review.get_mood_display }} |
+        Energy: {{ review.energy_level }}/10 |
+        Focus: {{ review.focus_score }}/10 |
+        Overall: {{ review.overall_score }}/10
+    </p>
+    <p><strong>Wins</strong><br>{{ review.wins|default:"No notes." }}</p>
+    <p><strong>Problems</strong><br>{{ review.problems|default:"No notes." }}</p>
+    <p><strong>Lessons</strong><br>{{ review.lessons|default:"No notes." }}</p>
+    <p><strong>Tomorrow plan</strong><br>{{ review.tomorrow_plan|default:"No plan yet." }}</p>
+</section>
+{% endblock %}

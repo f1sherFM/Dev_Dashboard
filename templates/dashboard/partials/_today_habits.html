@@ -1,0 +1,28 @@
+<section class="card dashboard-card">
+    <div class="actions dashboard-card__header">
+        <h2>Today's habits</h2>
+        <a href="{% url 'habits:list' %}">All habits</a>
+    </div>
+
+    {% if today_habits %}
+    <ul class="compact-list">
+        {% for habit in today_habits %}
+        <li class="compact-list__item">
+            <div>
+                <strong>{{ habit.name }}</strong>
+                <div class="goal-meta">Target: {{ habit.target_count }} {{ habit.unit }}</div>
+            </div>
+            <div class="dashboard-state">
+                {% if habit.today_entries %}
+                <span>{{ habit.today_entries.0.value }}</span>
+                {% else %}
+                <span>Not logged</span>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No active habits yet.</p>
+    {% endif %}
+</section>

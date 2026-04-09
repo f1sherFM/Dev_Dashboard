@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Review History | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="stack">
+    <div class="actions">
+        <h1>Review history</h1>
+        <a class="button" href="{% url 'reviews:today' %}">Open today's review</a>
+    </div>
+
+    {% if reviews %}
+    <ul class="goal-list">
+        {% for review in reviews %}
+        <li class="card">
+            <h2><a href="{% url 'reviews:detail' review.date|date:'Y-m-d' %}">{{ review.date }}</a></h2>
+            <p class="goal-meta">
+                Mood: {{ review.get_mood_display }} |
+                Energy: {{ review.energy_level }}/10 |
+                Focus: {{ review.focus_score }}/10 |
+                Overall: {{ review.overall_score }}/10
+            </p>
+            {% if review.wins %}
+            <p>{{ review.wins|truncatechars:180 }}</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="card">
+        <p>No reviews yet.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

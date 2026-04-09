@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>{{ project.name }}</h1>
+    <p class="goal-meta">
+        {{ project.get_status_display }} |
+        {{ project.is_active|yesno:"Active,Inactive" }}
+        {% if project.last_updated %}| Updated: {{ project.last_updated }}{% endif %}
+    </p>
+
+    <p>{{ project.description|default:"No description yet." }}</p>
+    <p><strong>Current focus</strong><br>{{ project.current_focus|default:"No focus set." }}</p>
+    <p><strong>Next step</strong><br>{{ project.next_step|default:"No next step set." }}</p>
+
+    {% if project.repo_url %}
+    <p><strong>Repository:</strong> <a href="{{ project.repo_url }}">{{ project.repo_url }}</a></p>
+    {% endif %}
+    {% if project.demo_url %}
+    <p><strong>Demo:</strong> <a href="{{ project.demo_url }}">{{ project.demo_url }}</a></p>
+    {% endif %}
+
+    <div class="actions">
+        <a class="button" href="{% url 'projects_overview:edit' project.slug %}">Edit project</a>
+        <a href="{% url 'projects_overview:list' %}">Back to list</a>
+    </div>
+</section>
+{% endblock %}

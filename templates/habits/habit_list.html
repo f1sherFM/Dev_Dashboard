@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Habits | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="stack">
+    <div class="actions">
+        <h1>Habits</h1>
+        <a class="button" href="{% url 'habits:create' %}">Create habit</a>
+    </div>
+
+    {% if habits %}
+    <ul class="goal-list">
+        {% for habit in habits %}
+        <li class="card">
+            <h2><a href="{% url 'habits:detail' habit.slug %}">{{ habit.name }}</a></h2>
+            <p class="goal-meta">
+                {{ habit.get_frequency_display }} | Target: {{ habit.target_count }} {{ habit.unit }}
+                {% if not habit.is_active %}| Inactive{% endif %}
+            </p>
+            {% if habit.description %}
+            <p>{{ habit.description|truncatechars:180 }}</p>
+            {% endif %}
+            {% with latest_entry=habit.entries.all.0 %}
+                {% if latest_entry %}
+                <p><strong>Latest:</strong> {{ latest_entry.date }} -> {{ latest_entry.value }}</p>
+                {% endif %}
+            {% endwith %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="card">
+        <p>No habits yet.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

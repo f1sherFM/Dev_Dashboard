@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>{{ profile.user.username }}</h1>
+    <p><strong>Email:</strong> {{ profile.user.email|default:"Not set" }}</p>
+    <p><strong>Bio:</strong> {{ profile.bio|default:"No bio yet." }}</p>
+    <p><strong>Joined:</strong> {{ profile.created_at|date:"Y-m-d H:i" }}</p>
+    {% if profile.avatar %}
+    <p><strong>Avatar URL:</strong> <a href="{{ profile.avatar }}">{{ profile.avatar }}</a></p>
+    {% endif %}
+</section>
+{% endblock %}

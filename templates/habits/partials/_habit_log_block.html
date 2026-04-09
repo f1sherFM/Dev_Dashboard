@@ -1,0 +1,59 @@
+<section class="card">
+    <div class="actions dashboard-card__header">
+        <h2>Log today</h2>
+        <a href="{% url 'habits:log-entry' habit.slug %}">Open full form</a>
+    </div>
+
+    {% if todays_entry %}
+    <p><span class="status-chip status-chip--success">Logged today</span></p>
+    <p class="muted">Current value: {{ todays_entry.value }}{% if todays_entry.note %} | {{ todays_entry.note }}{% endif %}</p>
+    {% else %}
+    <p><span class="status-chip">Not logged yet</span></p>
+    {% endif %}
+
+    <form
+        method="post"
+        class="inline-form"
+        hx-post="{% url 'habits:log-entry' habit.slug %}"
+        hx-target="#habit-log-block"
+        hx-swap="outerHTML"
+    >
+        {% csrf_token %}
+        <div class="inline-grid">
+            <div class="form-row">
+                {{ form.date.label_tag }}
+                {{ form.date }}
+                {{ form.date.errors }}
+            </div>
+            <div class="form-row">
+                {{ form.value.label_tag }}
+                {{ form.value }}
+                {{ form.value.errors }}
+            </div>
+        </div>
+        <div class="form-row">
+            {{ form.note.label_tag }}
+            {{ form.note }}
+            {{ form.note.errors }}
+        </div>
+        <div class="actions">
+            <button class="button" type="submit">Save entry</button>
+        </div>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Recent entries</h2>
+    {% if recent_entries %}
+    <ul class="goal-list">
+        {% for entry in recent_entries %}
+        <li>
+            <strong>{{ entry.date }}</strong>: {{ entry.value }}
+            {% if entry.note %}<br>{{ entry.note }}{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No entries yet.</p>
+    {% endif %}
+</section>

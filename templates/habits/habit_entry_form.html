@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Log Entry | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>Log entry for {{ habit.name }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-row">
+            {{ field.label_tag }}
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+        <div class="actions">
+            <button class="button" type="submit">Save entry</button>
+            <a href="{% url 'habits:detail' habit.slug %}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

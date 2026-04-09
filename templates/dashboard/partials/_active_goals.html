@@ -1,0 +1,22 @@
+<section class="card dashboard-card">
+    <div class="actions dashboard-card__header">
+        <h2>Top active goals</h2>
+        <a href="{% url 'goals:list' %}">All goals</a>
+    </div>
+
+    {% if top_active_goals %}
+    <ul class="compact-list">
+        {% for goal in top_active_goals %}
+        <li class="compact-list__item compact-list__item--stacked">
+            <a href="{% url 'goals:detail' goal.slug %}"><strong>{{ goal.title }}</strong></a>
+            <div class="goal-meta">
+                {{ goal.get_priority_display }} priority
+                {% if goal.deadline %}| Deadline: {{ goal.deadline }}{% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No active goals yet.</p>
+    {% endif %}
+</section>

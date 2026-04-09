@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Dev Dashboard{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<section class="dashboard-hero">
+    <div>
+        <p class="eyebrow">Today</p>
+        <h1>{{ today }}</h1>
+        <p class="lead">A practical view of habits, review status, goals, and active projects.</p>
+    </div>
+    <div class="dashboard-summary">
+        <div class="summary-tile">
+            <strong>{{ completed_habits_count }}/{{ today_habits_count }}</strong>
+            <span>habits logged</span>
+        </div>
+        <div class="summary-tile">
+            <strong>{% if todays_review %}Done{% else %}Open{% endif %}</strong>
+            <span>today's review</span>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-grid">
+    {% include "dashboard/partials/_today_habits.html" %}
+    {% include "dashboard/partials/_review_state.html" %}
+    {% include "dashboard/partials/_active_goals.html" %}
+    {% include "dashboard/partials/_active_projects.html" %}
+</section>
+{% else %}
+<section class="hero">
+    <p class="eyebrow">Dev Dashboard</p>
+    <h1>Your personal operating system for goals, habits, reviews, and projects.</h1>
+    <p class="lead">Log in to open the daily dashboard and keep your current work visible in one place.</p>
+    <div class="actions">
+        <a class="button" href="{% url 'accounts:login' %}">Login</a>
+        <a class="button" href="{% url 'accounts:signup' %}">Sign up</a>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

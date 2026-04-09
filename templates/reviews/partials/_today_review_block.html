@@ -1,0 +1,35 @@
+<section class="card">
+    <div class="actions">
+        <h1>Review for {{ today }}</h1>
+        <a href="{% url 'reviews:history' %}">History</a>
+    </div>
+
+    {% if review %}
+    <p><span class="status-chip status-chip--success">Saved</span></p>
+    <p class="muted">
+        Mood: {{ review.get_mood_display }} |
+        Energy: {{ review.energy_level }}/10 |
+        Focus: {{ review.focus_score }}/10 |
+        Overall: {{ review.overall_score }}/10
+    </p>
+    {% else %}
+    <p><span class="status-chip">Open</span></p>
+    {% endif %}
+
+    <form
+        method="post"
+        hx-post="{% url 'reviews:today' %}"
+        hx-target="#today-review-block"
+        hx-swap="outerHTML"
+    >
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-row">
+            {{ field.label_tag }}
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+        <button class="button" type="submit">Save review</button>
+    </form>
+</section>

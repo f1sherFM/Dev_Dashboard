@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ habit.name }} | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1>{{ habit.name }}</h1>
+    <p class="goal-meta">
+        {{ habit.get_frequency_display }} | Target: {{ habit.target_count }} {{ habit.unit }} |
+        {{ habit.is_active|yesno:"Active,Inactive" }}
+    </p>
+    <p>{{ habit.description|default:"No description yet." }}</p>
+
+    <div class="actions">
+        <a class="button" href="{% url 'habits:edit' habit.slug %}">Edit habit</a>
+        <a href="{% url 'habits:list' %}">Back to list</a>
+    </div>
+</section>
+
+<div id="habit-log-block">
+    {% include "habits/partials/_habit_log_block.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+<section class="card dashboard-card">
+    <div class="actions dashboard-card__header">
+        <h2>Project pulse</h2>
+        <a href="{% url 'projects_overview:list' %}">All projects</a>
+    </div>
+
+    {% if active_projects %}
+    <ul class="compact-list">
+        {% for project in active_projects %}
+        <li class="compact-list__item compact-list__item--stacked">
+            <a href="{% url 'projects_overview:detail' project.slug %}"><strong>{{ project.name }}</strong></a>
+            {% if project.current_focus %}
+            <div><strong>Focus:</strong> {{ project.current_focus|truncatechars:120 }}</div>
+            {% endif %}
+            {% if project.next_step %}
+            <div class="goal-meta"><strong>Next:</strong> {{ project.next_step|truncatechars:120 }}</div>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No active projects yet.</p>
+    {% endif %}
+</section>
