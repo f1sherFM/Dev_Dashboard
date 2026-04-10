@@ -24,44 +24,25 @@ Single-user MVP completed:
 - workflow-oriented tests
 - documentation and screenshots
 
-## Planned
+### v0.1.1
 
-### v0.1.1 — Dashboard UX Improvements
+Dashboard UX Improvements completed:
 
-Goal:
+- dashboard became a stronger daily entry point
+- homepage now highlights what needs attention today
+- quick actions were improved from the homepage
+- mobile-first dashboard flow was polished
 
-Make the dashboard the best daily entry point.
+### v0.1.2
 
-Scope:
-
-- improve homepage daily flow
-- highlight what needs attention today
-- reduce friction for core actions from the dashboard
-- improve mobile-first usability for repeated daily use
-
-Notes:
-
-- keep dashboard as a read/interaction layer, not a new domain
-- do not add analytics, charts, or notifications here
-
-### v0.1.2 — Habit Progress Layer
-
-Goal:
-
-Add lightweight progress visibility to habits without turning the app into an analytics system.
-
-Scope:
+Habit Progress Layer completed:
 
 - current streak
 - last completed date
-- recent completion summary
-- practical progress indicators on habit pages and related views
+- weekly completion count
+- compact habit progress visibility in key habit-related views
 
-Notes:
-
-- keep the model simple
-- no heavy charts
-- no advanced analytics engine
+## Planned
 
 ### v0.2.0 — Weekly Summary System
 

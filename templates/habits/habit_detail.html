@@ -17,6 +17,30 @@
     </div>
 </section>
 
+<section class="card">
+    <h2>Progress</h2>
+    <div class="compact-list">
+        <div class="compact-list__item">
+            <div><strong>Current streak</strong></div>
+            <div class="dashboard-state"><span>{{ progress.current_streak }}</span></div>
+        </div>
+        <div class="compact-list__item">
+            <div><strong>Last completed date</strong></div>
+            <div class="dashboard-state">
+                {% if progress.last_completed_date %}
+                <span>{{ progress.last_completed_date }}</span>
+                {% else %}
+                <span>None</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="compact-list__item">
+            <div><strong>Completed in last 7 days</strong></div>
+            <div class="dashboard-state"><span>{{ progress.weekly_completion_count }}</span></div>
+        </div>
+    </div>
+</section>
+
 <div id="habit-log-block">
     {% include "habits/partials/_habit_log_block.html" %}
 </div>

@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from goals.models import Goal
 from habits.models import Habit, HabitEntry
+from habits.selectors import get_habit_progress
 from projects_overview.models import ProjectSnapshot
 from reviews.models import DailyReview
 
@@ -15,10 +16,14 @@ def get_dashboard_context(*, today=None):
     today_habits = Habit.objects.filter(is_active=True).prefetch_related(
         Prefetch(
             "entries",
-            queryset=HabitEntry.objects.filter(date=today),
+            queryset=HabitEntry.objects.filter(date__range=(today.replace(day=today.day), today)),
             to_attr="today_entries",
         )
     )
+    today_habits = list(today_habits)
+    for habit in today_habits:
+        habit.today_entries = [entry for entry in habit.today_entries if entry.date == today]
+        habit.progress = get_habit_progress(habit, today=today)
     top_active_goals = Goal.objects.filter(
         status="active",
         is_archived=False,
@@ -73,7 +78,7 @@ def get_dashboard_context(*, today=None):
         "today": today,
         "today_habits": today_habits,
         "habits_needing_log": habits_needing_log,
-        "today_habits_count": today_habits.count(),
+        "today_habits_count": len(today_habits),
         "completed_habits_count": sum(
             1 for habit in today_habits if habit.today_entries and habit.today_entries[0].value > 0
         ),

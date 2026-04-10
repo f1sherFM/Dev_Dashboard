@@ -11,6 +11,15 @@
             <div>
                 <strong>{{ habit.name }}</strong>
                 <div class="goal-meta">Target: {{ habit.target_count }} {{ habit.unit }}</div>
+                <div class="goal-meta">
+                    Streak: {{ habit.progress.current_streak }} |
+                    Last done:
+                    {% if habit.progress.last_completed_date %}
+                    {{ habit.progress.last_completed_date }}
+                    {% else %}
+                    none
+                    {% endif %}
+                </div>
             </div>
             <div class="dashboard-state">
                 {% if habit.today_entries %}

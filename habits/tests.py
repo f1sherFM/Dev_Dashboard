@@ -6,6 +6,11 @@ from django.test import Client, TestCase
 from django.utils import timezone
 
 from .models import Habit, HabitEntry
+from .selectors import (
+    get_current_streak,
+    get_last_completed_date,
+    get_weekly_completion_count,
+)
 from .services import create_habit, log_habit_entry, update_habit
 
 
@@ -80,6 +85,65 @@ class HabitModelTests(TestCase):
 
         with self.assertRaises(IntegrityError):
             HabitEntry.objects.create(habit=habit, date=date(2026, 4, 9), value=0, note="")
+
+
+class HabitProgressSelectorTests(TestCase):
+    def setUp(self):
+        self.habit = create_habit(
+            name="Progress habit",
+            description="",
+            frequency="daily",
+            target_count=1,
+            unit="times",
+            is_active=True,
+        )
+
+    def test_current_streak_counts_consecutive_days_ending_today(self):
+        today = date(2026, 4, 10)
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 8), value=1, note="")
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 9), value=1, note="")
+        log_habit_entry(habit=self.habit, date=today, value=1, note="")
+
+        self.assertEqual(get_current_streak(self.habit, today=today), 3)
+
+    def test_current_streak_is_zero_when_today_not_completed(self):
+        today = date(2026, 4, 10)
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 8), value=1, note="")
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 9), value=1, note="")
+
+        self.assertEqual(get_current_streak(self.habit, today=today), 0)
+
+    def test_streak_breaks_on_missing_day(self):
+        today = date(2026, 4, 10)
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 7), value=1, note="")
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 9), value=1, note="")
+        log_habit_entry(habit=self.habit, date=today, value=1, note="")
+
+        self.assertEqual(get_current_streak(self.habit, today=today), 2)
+
+    def test_weekly_completion_count_counts_only_value_greater_than_zero(self):
+        today = date(2026, 4, 10)
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 4), value=1, note="")
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 7), value=2, note="")
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 8), value=0, note="")
+        log_habit_entry(habit=self.habit, date=today, value=1, note="")
+
+        self.assertEqual(get_weekly_completion_count(self.habit, today=today), 3)
+
+    def test_last_completed_date_returns_most_recent_completed_day(self):
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 8), value=1, note="")
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 9), value=0, note="")
+        log_habit_entry(habit=self.habit, date=date(2026, 4, 10), value=2, note="")
+
+        self.assertEqual(get_last_completed_date(self.habit), date(2026, 4, 10))
+
+    def test_value_zero_does_not_count_as_completion(self):
+        today = date(2026, 4, 10)
+        log_habit_entry(habit=self.habit, date=today, value=0, note="")
+
+        self.assertEqual(get_current_streak(self.habit, today=today), 0)
+        self.assertEqual(get_weekly_completion_count(self.habit, today=today), 0)
+        self.assertIsNone(get_last_completed_date(self.habit))
 
 
 class HabitHtmxFlowTests(TestCase):
