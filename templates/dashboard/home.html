@@ -5,10 +5,15 @@
 {% block content %}
 {% if user.is_authenticated %}
 <section class="dashboard-hero">
-    <div>
+    <div class="dashboard-hero__copy">
         <p class="eyebrow">Today</p>
         <h1>{{ today }}</h1>
-        <p class="lead">A practical view of habits, review status, goals, and active projects.</p>
+        <p class="lead">Your daily entry point for logging, review, focus, and project direction.</p>
+        <div class="actions">
+            <a class="button" href="{% url 'reviews:today' %}">{% if todays_review %}Update review{% else %}Write review{% endif %}</a>
+            <a class="button" href="{% url 'habits:list' %}">Open habits</a>
+            <a class="button" href="{% url 'goals:list' %}">Review goals</a>
+        </div>
     </div>
     <div class="dashboard-summary">
         <div class="summary-tile">
@@ -19,7 +24,38 @@
             <strong>{% if todays_review %}Done{% else %}Open{% endif %}</strong>
             <span>today's review</span>
         </div>
+        <div class="summary-tile">
+            <strong>{{ attention_items|length }}</strong>
+            <span>items need attention</span>
+        </div>
+        <div class="summary-tile">
+            <strong>{{ active_projects|length }}</strong>
+            <span>active projects</span>
+        </div>
     </div>
+</section>
+
+<section class="card dashboard-card dashboard-priority">
+    <div class="actions dashboard-card__header">
+        <h2>What needs attention today</h2>
+        <a href="{% url 'dashboard:home' %}">Refresh</a>
+    </div>
+    {% if attention_items %}
+    <ul class="compact-list">
+        {% for item in attention_items %}
+        <li class="compact-list__item compact-list__item--stacked">
+            <strong>{{ item.title }}</strong>
+            <div class="goal-meta">{{ item.description }}</div>
+            <div class="actions">
+                <a class="button" href="{{ item.action_url }}">{{ item.action_label }}</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p><strong>Daily loop is in good shape.</strong></p>
+    <p class="goal-meta">Habits are logged, the review is done, and there is nothing urgent on the dashboard right now.</p>
+    {% endif %}
 </section>
 
 <section class="dashboard-grid">

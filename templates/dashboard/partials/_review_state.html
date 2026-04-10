@@ -1,7 +1,7 @@
 <section class="card dashboard-card">
     <div class="actions dashboard-card__header">
         <h2>Review</h2>
-        <a href="{% url 'reviews:today' %}">Open review</a>
+        <a href="{% url 'reviews:today' %}">{% if todays_review %}Update review{% else %}Open review{% endif %}</a>
     </div>
 
     {% if todays_review %}
@@ -12,8 +12,14 @@
         Focus: {{ todays_review.focus_score }}/10
     </p>
     <p>{{ todays_review.tomorrow_plan|default:todays_review.wins|truncatechars:180 }}</p>
+    <div class="actions">
+        <a class="button" href="{% url 'reviews:today' %}">Refine review</a>
+    </div>
     {% else %}
     <p><strong>Today's review is still open.</strong></p>
     <p class="goal-meta">Capture wins, problems, lessons, and tomorrow's plan before the day ends.</p>
+    <div class="actions">
+        <a class="button" href="{% url 'reviews:today' %}">Write review</a>
+    </div>
     {% endif %}
 </section>

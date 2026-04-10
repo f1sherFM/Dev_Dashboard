@@ -17,6 +17,16 @@ def _render_habit_log_block(request, *, habit, form):
     return render(request, "habits/partials/_habit_log_block.html", context)
 
 
+def _render_dashboard_habit_widget(request):
+    from dashboard.selectors import get_dashboard_context
+
+    return render(
+        request,
+        "dashboard/partials/_today_habits.html",
+        get_dashboard_context(today=timezone.localdate()),
+    )
+
+
 @login_required
 def habit_list_view(request):
     return render(
@@ -70,14 +80,22 @@ def habit_update_view(request, slug):
 def habit_log_entry_view(request, slug):
     habit = get_object_or_404(get_habit_by_slug(slug))
     form = HabitEntryForm(request.POST or None)
+    source = request.POST.get("source")
     if request.method == "POST" and form.is_valid():
         log_habit_entry(habit=habit, **form.cleaned_data)
         if request.headers.get("HX-Request") == "true":
+            if source == "dashboard":
+                return _render_dashboard_habit_widget(request)
             fresh_form = HabitEntryForm(initial={"date": timezone.localdate()})
             return _render_habit_log_block(request, habit=habit, form=fresh_form)
         return redirect("habits:detail", slug=habit.slug)
 
     if request.headers.get("HX-Request") == "true":
+        if source == "dashboard":
+            response = _render_dashboard_habit_widget(request)
+            if form.errors:
+                response.status_code = 400
+            return response
         response = _render_habit_log_block(request, habit=habit, form=form)
         if form.errors:
             response.status_code = 400

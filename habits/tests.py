@@ -3,6 +3,7 @@ from datetime import date
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import Client, TestCase
+from django.utils import timezone
 
 from .models import Habit, HabitEntry
 from .services import create_habit, log_habit_entry, update_habit
@@ -96,12 +97,13 @@ class HabitHtmxFlowTests(TestCase):
         self.client.login(username="habituser", password="pass12345")
 
     def test_htmx_log_entry_returns_refreshed_block_and_saves_entry(self):
+        today = timezone.localdate()
         response = self.client.post(
             f"/habits/{self.habit.slug}/log/",
-            {"date": "2026-04-09", "value": "1", "note": "quick log"},
+            {"date": today.isoformat(), "value": "1", "note": "quick log"},
             HTTP_HX_REQUEST="true",
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Logged today")
-        self.assertEqual(HabitEntry.objects.filter(habit=self.habit, date=date(2026, 4, 9)).count(), 1)
+        self.assertEqual(HabitEntry.objects.filter(habit=self.habit, date=today).count(), 1)

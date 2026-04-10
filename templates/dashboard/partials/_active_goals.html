@@ -13,6 +13,9 @@
                 {{ goal.get_priority_display }} priority
                 {% if goal.deadline %}| Deadline: {{ goal.deadline }}{% endif %}
             </div>
+            {% if goal.description %}
+            <div>{{ goal.description|truncatechars:110 }}</div>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>

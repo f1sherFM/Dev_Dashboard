@@ -9,6 +9,7 @@
         {% for project in active_projects %}
         <li class="compact-list__item compact-list__item--stacked">
             <a href="{% url 'projects_overview:detail' project.slug %}"><strong>{{ project.name }}</strong></a>
+            <div class="goal-meta">{{ project.get_status_display }}</div>
             {% if project.current_focus %}
             <div><strong>Focus:</strong> {{ project.current_focus|truncatechars:120 }}</div>
             {% endif %}

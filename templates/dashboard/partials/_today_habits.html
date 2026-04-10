@@ -1,4 +1,4 @@
-<section class="card dashboard-card">
+<section class="card dashboard-card" id="dashboard-today-habits">
     <div class="actions dashboard-card__header">
         <h2>Today's habits</h2>
         <a href="{% url 'habits:list' %}">All habits</a>
@@ -15,8 +15,22 @@
             <div class="dashboard-state">
                 {% if habit.today_entries %}
                 <span>{{ habit.today_entries.0.value }}</span>
+                <div class="goal-meta">logged</div>
                 {% else %}
-                <span>Not logged</span>
+                <form
+                    method="post"
+                    class="dashboard-inline-action"
+                    hx-post="{% url 'habits:log-entry' habit.slug %}"
+                    hx-target="#dashboard-today-habits"
+                    hx-swap="outerHTML"
+                >
+                    {% csrf_token %}
+                    <input type="hidden" name="date" value="{{ today|date:'Y-m-d' }}">
+                    <input type="hidden" name="value" value="{{ habit.target_count }}">
+                    <input type="hidden" name="note" value="">
+                    <input type="hidden" name="source" value="dashboard">
+                    <button type="submit" class="button button--small">Log now</button>
+                </form>
                 {% endif %}
             </div>
         </li>
