@@ -42,27 +42,19 @@ Habit Progress Layer completed:
 - weekly completion count
 - compact habit progress visibility in key habit-related views
 
+### v0.2.0
+
+Weekly Summary System completed:
+
+- cross-domain weekly summary page
+- weekly aggregation for habits, reviews, goals, and projects
+- reusable week range helper for current or arbitrary weeks
+- read-only reflection layer built on existing data
+- mobile-friendly weekly summary view
+
 ## Planned
 
-### v0.2.0 — Weekly Summary System
-
-Goal:
-
-Add a weekly reflection and summary layer on top of the existing daily system.
-
-Scope:
-
-- weekly summary page
-- weekly aggregation for habits
-- weekly review coverage
-- goal/project weekly visibility
-- structured weekly reflection workflow
-
-Notes:
-
-- build on existing services/selectors architecture
-- keep it useful and calm
-- do not overexpand into reporting for reporting's sake
+No future releases are defined yet in this file.
 
 ## Update Policy
 

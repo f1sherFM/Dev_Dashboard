@@ -1,7 +1,10 @@
 from datetime import date
+from datetime import timedelta
 
+from django.db.models import Avg
 from django.db.models import Prefetch
 from django.urls import reverse
+from django.utils import timezone
 
 from goals.models import Goal
 from habits.models import Habit, HabitEntry
@@ -10,13 +13,65 @@ from projects_overview.models import ProjectSnapshot
 from reviews.models import DailyReview
 
 
+def get_week_range(reference_date=None):
+    reference_date = reference_date or timezone.localdate()
+    week_start = reference_date - timedelta(days=reference_date.weekday())
+    week_end = week_start + timedelta(days=6)
+    return week_start, week_end
+
+
+def get_weekly_summary(reference_date=None):
+    week_start, week_end = get_week_range(reference_date=reference_date)
+
+    habits = list(Habit.objects.filter(is_active=True).order_by("name"))
+    for habit in habits:
+        weekly_count = habit.entries.filter(date__range=(week_start, week_end), value__gt=0).count()
+        habit.weekly_completion_count = weekly_count
+        habit.last_completed_date = get_habit_progress(habit, today=week_end)["last_completed_date"]
+
+    habits_with_no_completions = [habit for habit in habits if habit.weekly_completion_count == 0]
+    habits_completed_multiple_times = [habit for habit in habits if habit.weekly_completion_count >= 2]
+
+    reviews_this_week = DailyReview.objects.filter(date__range=(week_start, week_end)).order_by("date")
+    review_averages = reviews_this_week.aggregate(
+        overall_score_avg=Avg("overall_score"),
+        energy_level_avg=Avg("energy_level"),
+        focus_score_avg=Avg("focus_score"),
+    )
+
+    active_goals = Goal.objects.filter(status="active", is_archived=False).order_by("deadline", "-created_at")
+    goals_completed_this_week = Goal.objects.filter(completed_at__date__range=(week_start, week_end)).order_by(
+        "-completed_at"
+    )
+    goals_near_deadline = active_goals.filter(deadline__range=(week_start, week_end))
+
+    active_projects = ProjectSnapshot.objects.filter(is_active=True).order_by("name")
+    stale_projects = active_projects.filter(last_updated__lt=week_start - timedelta(days=14))
+
+    return {
+        "reference_date": reference_date or timezone.localdate(),
+        "week_start": week_start,
+        "week_end": week_end,
+        "habits": habits,
+        "habits_with_no_completions": habits_with_no_completions,
+        "habits_completed_multiple_times": habits_completed_multiple_times,
+        "review_count": reviews_this_week.count(),
+        "review_dates": [review.date for review in reviews_this_week],
+        "review_averages": review_averages,
+        "active_goals": active_goals,
+        "goals_completed_this_week": goals_completed_this_week,
+        "goals_near_deadline": goals_near_deadline,
+        "active_projects": active_projects,
+        "stale_projects": stale_projects,
+    }
+
+
 def get_dashboard_context(*, today=None):
-    today = today or date.today()
+    today = today or timezone.localdate()
 
     today_habits = Habit.objects.filter(is_active=True).prefetch_related(
         Prefetch(
-            "entries",
-            queryset=HabitEntry.objects.filter(date__range=(today.replace(day=today.day), today)),
+            "entries", queryset=HabitEntry.objects.filter(date=today),
             to_attr="today_entries",
         )
     )

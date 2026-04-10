@@ -15,6 +15,7 @@
                 <a class="brand" href="{% url 'dashboard:home' %}">Dev Dashboard</a>
                 <nav class="site-nav">
                     {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:weekly' %}">Weekly</a>
                     <a href="{% url 'goals:list' %}">Goals</a>
                     <a href="{% url 'habits:list' %}">Habits</a>
                     <a href="{% url 'reviews:today' %}">Reviews</a>

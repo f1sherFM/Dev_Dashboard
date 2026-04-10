@@ -21,21 +21,26 @@ Dev Dashboard combines a few essential workflows into one calm daily workspace:
 - project snapshots for lightweight project monitoring
 - a homepage that aggregates the current state of the system
 
-This is a single-user MVP. Multi-user support is intentionally out of scope for the current version.
+This is still a single-user product line. Multi-user support remains intentionally out of scope for the current version.
 
-## MVP Features
+## Current Features
 
-The current MVP includes:
+The current release includes:
 
 - authentication with signup, login, logout, and profile page
 - goal management
 - habit management and daily habit entry logging
+- lightweight habit progress layer:
+  - current streak
+  - last completed date
+  - weekly completion count
 - daily review creation and history
 - project snapshot tracking
 - dashboard homepage aggregation
+- weekly summary page as a cross-domain read layer
 - selective HTMX enhancements for high-frequency daily actions
 
-Out of scope for the MVP:
+Still out of scope:
 
 - charts and analytics
 - streak engine
@@ -251,6 +256,20 @@ The homepage aggregates the information needed most often during the day:
 
 The dashboard is designed to stay useful and uncluttered. It should be readable on desktop and comfortable on mobile.
 
+## Weekly Summary
+
+The weekly summary is a read-only reflection layer built on top of the existing core data.
+
+It aggregates:
+
+- weekly habit completion counts
+- habits with no completions during the week
+- review coverage and average scores
+- active goals, completed goals, and near-deadline goals
+- active project focus and next-step visibility
+
+It is intentionally not a reporting engine. The goal is to support weekly reflection, not build analytics for analytics' sake.
+
 ## Setup
 
 ### 1. Create a virtual environment
@@ -341,6 +360,10 @@ python manage.py check
 
 ![Project overview](docs/screenshots/projects-overview.png)
 
+### Weekly Summary
+
+![Weekly summary](docs/screenshots/weekly-summary.png)
+
 ## Current Quality Focus
 
 This project prioritizes:
@@ -357,7 +380,6 @@ It intentionally does not prioritize visual complexity or speculative features o
 
 Possible future work after the MVP:
 
-- weekly summaries
 - streak analytics
 - deeper dashboards
 - integrations

@@ -104,6 +104,10 @@ body {
     padding-bottom: 2rem;
 }
 
+.dashboard-grid--weekly {
+    align-items: start;
+}
+
 .dashboard-priority {
     max-width: none;
     margin-top: 0;

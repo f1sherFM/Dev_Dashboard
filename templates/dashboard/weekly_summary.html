@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Summary | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="dashboard-hero">
+    <div class="dashboard-hero__copy">
+        <p class="eyebrow">Weekly Summary</p>
+        <h1>{{ week_start }} to {{ week_end }}</h1>
+        <p class="lead">A calm weekly readout across habits, reviews, goals, and active projects.</p>
+        <div class="actions">
+            <a class="button" href="{% url 'dashboard:home' %}">Back to dashboard</a>
+        </div>
+    </div>
+    <div class="dashboard-summary">
+        <div class="summary-tile">
+            <strong>{{ review_count }}</strong>
+            <span>reviews this week</span>
+        </div>
+        <div class="summary-tile">
+            <strong>{{ goals_completed_this_week|length }}</strong>
+            <span>goals completed</span>
+        </div>
+        <div class="summary-tile">
+            <strong>{{ habits_completed_multiple_times|length }}</strong>
+            <span>habits repeated</span>
+        </div>
+        <div class="summary-tile">
+            <strong>{{ stale_projects|length }}</strong>
+            <span>stale projects</span>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-grid dashboard-grid--weekly">
+    <section class="card dashboard-card">
+        <div class="actions dashboard-card__header">
+            <h2>Habits</h2>
+            <a href="{% url 'habits:list' %}">All habits</a>
+        </div>
+        {% if habits %}
+        <ul class="compact-list">
+            {% for habit in habits %}
+            <li class="compact-list__item">
+                <div>
+                    <strong>{{ habit.name }}</strong>
+                    <div class="goal-meta">
+                        Weekly completions: {{ habit.weekly_completion_count }}
+                        {% if habit.last_completed_date %}| Last done: {{ habit.last_completed_date }}{% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No active habits to summarize.</p>
+        {% endif %}
+        {% if habits_with_no_completions %}
+        <p class="goal-meta"><strong>No completions this week:</strong> {% for habit in habits_with_no_completions %}{{ habit.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% endif %}
+    </section>
+
+    <section class="card dashboard-card">
+        <div class="actions dashboard-card__header">
+            <h2>Reviews</h2>
+            <a href="{% url 'reviews:history' %}">History</a>
+        </div>
+        <p><strong>Completed:</strong> {{ review_count }}</p>
+        <p class="goal-meta">
+            Dates:
+            {% if review_dates %}
+            {% for review_date in review_dates %}{{ review_date }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            {% else %}
+            none
+            {% endif %}
+        </p>
+        {% if review_count %}
+        <p class="goal-meta">
+            Average overall: {{ review_averages.overall_score_avg|floatformat:1 }} |
+            Average energy: {{ review_averages.energy_level_avg|floatformat:1 }} |
+            Average focus: {{ review_averages.focus_score_avg|floatformat:1 }}
+        </p>
+        {% endif %}
+    </section>
+
+    <section class="card dashboard-card">
+        <div class="actions dashboard-card__header">
+            <h2>Goals</h2>
+            <a href="{% url 'goals:list' %}">All goals</a>
+        </div>
+        <p><strong>Active goals:</strong> {{ active_goals|length }}</p>
+        {% if goals_completed_this_week %}
+        <p class="goal-meta"><strong>Completed this week:</strong></p>
+        <ul class="compact-list">
+            {% for goal in goals_completed_this_week %}
+            <li class="compact-list__item compact-list__item--stacked">
+                <strong>{{ goal.title }}</strong>
+                <div class="goal-meta">{{ goal.completed_at|date:"Y-m-d H:i" }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if goals_near_deadline %}
+        <p class="goal-meta"><strong>Near deadline:</strong></p>
+        <ul class="compact-list">
+            {% for goal in goals_near_deadline %}
+            <li class="compact-list__item compact-list__item--stacked">
+                <strong>{{ goal.title }}</strong>
+                <div class="goal-meta">Deadline: {{ goal.deadline }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </section>
+
+    <section class="card dashboard-card">
+        <div class="actions dashboard-card__header">
+            <h2>Projects</h2>
+            <a href="{% url 'projects_overview:list' %}">All projects</a>
+        </div>
+        {% if active_projects %}
+        <ul class="compact-list">
+            {% for project in active_projects %}
+            <li class="compact-list__item compact-list__item--stacked">
+                <strong>{{ project.name }}</strong>
+                {% if project.current_focus %}
+                <div><strong>Focus:</strong> {{ project.current_focus|truncatechars:120 }}</div>
+                {% endif %}
+                {% if project.next_step %}
+                <div class="goal-meta"><strong>Next:</strong> {{ project.next_step|truncatechars:120 }}</div>
+                {% endif %}
+                {% if project.last_updated %}
+                <div class="goal-meta">Last updated: {{ project.last_updated }}</div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No active projects to summarize.</p>
+        {% endif %}
+        {% if stale_projects %}
+        <p class="goal-meta"><strong>Potentially stale:</strong> {% for project in stale_projects %}{{ project.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}
