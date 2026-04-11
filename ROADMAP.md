@@ -52,28 +52,19 @@ Weekly Summary System completed:
 - read-only reflection layer built on existing data
 - mobile-friendly weekly summary view
 
-## Planned
-
 ### v0.2.1
 
-Weekly Summary UX Refinement:
+Weekly Summary UX Refinement completed:
 
-- visible week navigation:
-  - previous week
-  - viewed week range
-  - next week
-- current week awareness when viewing a past or future week
+- visible previous/current/next week navigation
+- clear current-week awareness when viewing other weeks
 - explicit "Back to current week" action
-- clearer weekly header and at-a-glance reading flow
-- better weekly empty states
-- mobile polish for weekly summary page
+- clearer weekly header and at-a-glance summary
+- better empty states across weekly blocks
+- stronger quick links to related pages
+- improved mobile readability for the weekly page
 
-Notes:
-
-- keep weekly summary read-only
-- no write workflow
-- no charts or analytics expansion
-- no export/share/reminder features
+## Planned
 
 ### v0.3.0
 

@@ -3,6 +3,24 @@
 {% block title %}Weekly Summary | Dev Dashboard{% endblock %}
 
 {% block content %}
+<section class="week-nav">
+    <a class="week-nav__link" href="{{ previous_week_url }}">Previous week</a>
+    <div class="week-nav__center">
+        <strong>{{ week_start }} to {{ week_end }}</strong>
+        <span class="muted">{{ week_label|title }}</span>
+    </div>
+    <a class="week-nav__link" href="{{ next_week_url }}">Next week</a>
+</section>
+
+{% if not is_current_week %}
+<section class="card dashboard-card dashboard-week-status">
+    <p><strong>You are viewing {{ week_start|date:"M j" }}–{{ week_end|date:"j" }} ({{ week_label }}).</strong></p>
+    <div class="actions">
+        <a class="button" href="{{ current_week_url }}">Back to current week</a>
+    </div>
+</section>
+{% endif %}
+
 <section class="dashboard-hero">
     <div class="dashboard-hero__copy">
         <p class="eyebrow">Weekly Summary</p>
@@ -10,9 +28,14 @@
         <p class="lead">A calm weekly readout across habits, reviews, goals, and active projects.</p>
         <div class="actions">
             <a class="button" href="{% url 'dashboard:home' %}">Back to dashboard</a>
+            <a class="button" href="{% url 'habits:list' %}">Open habits</a>
         </div>
     </div>
     <div class="dashboard-summary">
+        <div class="summary-tile">
+            <strong>{{ total_weekly_habit_completions }}</strong>
+            <span>habit completions</span>
+        </div>
         <div class="summary-tile">
             <strong>{{ review_count }}</strong>
             <span>reviews this week</span>
@@ -22,17 +45,41 @@
             <span>goals completed</span>
         </div>
         <div class="summary-tile">
-            <strong>{{ habits_completed_multiple_times|length }}</strong>
-            <span>habits repeated</span>
-        </div>
-        <div class="summary-tile">
-            <strong>{{ stale_projects|length }}</strong>
-            <span>stale projects</span>
+            <strong>{{ active_projects|length }}</strong>
+            <span>active projects</span>
         </div>
     </div>
 </section>
 
 <section class="dashboard-grid dashboard-grid--weekly">
+    <section class="card dashboard-card">
+        <div class="actions dashboard-card__header">
+            <h2>This week at a glance</h2>
+            {% if not is_current_week %}
+            <a href="{{ current_week_url }}">Current week</a>
+            {% endif %}
+        </div>
+        <ul class="compact-list">
+            <li class="compact-list__item">
+                <div><strong>Reviews completed</strong></div>
+                <div class="dashboard-state"><span>{{ review_count }}</span></div>
+            </li>
+            <li class="compact-list__item">
+                <div><strong>Goals completed</strong></div>
+                <div class="dashboard-state"><span>{{ goals_completed_this_week|length }}</span></div>
+            </li>
+            <li class="compact-list__item">
+                <div><strong>Near deadlines</strong></div>
+                <div class="dashboard-state"><span>{{ goals_near_deadline|length }}</span></div>
+            </li>
+            <li class="compact-list__item">
+                <div><strong>Stale projects</strong></div>
+                <div class="dashboard-state"><span>{{ stale_projects|length }}</span></div>
+            </li>
+        </ul>
+        <p class="goal-meta">Use this page to see whether the week needs more execution, cleanup, or a clearer next step.</p>
+    </section>
+
     <section class="card dashboard-card">
         <div class="actions dashboard-card__header">
             <h2>Habits</h2>
@@ -57,7 +104,15 @@
         {% endif %}
         {% if habits_with_no_completions %}
         <p class="goal-meta"><strong>No completions this week:</strong> {% for habit in habits_with_no_completions %}{{ habit.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% else %}
+        <p class="goal-meta">Every active habit was completed at least once this week.</p>
         {% endif %}
+        {% if habits_completed_multiple_times %}
+        <p class="goal-meta"><strong>Repeated habits:</strong> {% for habit in habits_completed_multiple_times %}{{ habit.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% endif %}
+        <div class="actions">
+            <a href="{% url 'habits:list' %}">Review habit details</a>
+        </div>
     </section>
 
     <section class="card dashboard-card">
@@ -65,21 +120,27 @@
             <h2>Reviews</h2>
             <a href="{% url 'reviews:history' %}">History</a>
         </div>
+        {% if review_count %}
         <p><strong>Completed:</strong> {{ review_count }}</p>
         <p class="goal-meta">
             Dates:
-            {% if review_dates %}
             {% for review_date in review_dates %}{{ review_date }}{% if not forloop.last %}, {% endif %}{% endfor %}
-            {% else %}
-            none
-            {% endif %}
         </p>
-        {% if review_count %}
         <p class="goal-meta">
             Average overall: {{ review_averages.overall_score_avg|floatformat:1 }} |
             Average energy: {{ review_averages.energy_level_avg|floatformat:1 }} |
             Average focus: {{ review_averages.focus_score_avg|floatformat:1 }}
         </p>
+        <div class="actions">
+            <a href="{% url 'reviews:history' %}">Open review history</a>
+            <a href="{% url 'reviews:today' %}">Open today's review</a>
+        </div>
+        {% else %}
+        <p><strong>No reviews were completed this week.</strong></p>
+        <p class="goal-meta">If the week felt busy or unclear, opening today's review is the simplest way to restart the reflection loop.</p>
+        <div class="actions">
+            <a href="{% url 'reviews:today' %}">Write today's review</a>
+        </div>
         {% endif %}
     </section>
 
@@ -99,6 +160,8 @@
             </li>
             {% endfor %}
         </ul>
+        {% else %}
+        <p class="goal-meta">No goals were completed this week.</p>
         {% endif %}
         {% if goals_near_deadline %}
         <p class="goal-meta"><strong>Near deadline:</strong></p>
@@ -111,6 +174,9 @@
             {% endfor %}
         </ul>
         {% endif %}
+        <div class="actions">
+            <a href="{% url 'goals:list' %}">Review all goals</a>
+        </div>
     </section>
 
     <section class="card dashboard-card">
@@ -140,7 +206,12 @@
         {% endif %}
         {% if stale_projects %}
         <p class="goal-meta"><strong>Potentially stale:</strong> {% for project in stale_projects %}{{ project.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% else %}
+        <p class="goal-meta">All active projects have been updated recently.</p>
         {% endif %}
+        <div class="actions">
+            <a href="{% url 'projects_overview:list' %}">Open projects overview</a>
+        </div>
     </section>
 </section>
 {% endblock %}

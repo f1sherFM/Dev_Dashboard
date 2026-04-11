@@ -108,6 +108,37 @@ body {
     align-items: start;
 }
 
+.week-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+}
+
+.week-nav__center {
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    text-align: center;
+}
+
+.week-nav__link {
+    color: #8a5a2b;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.week-nav__link:last-child {
+    justify-self: end;
+}
+
+.dashboard-week-status {
+    max-width: none;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
 .dashboard-priority {
     max-width: none;
     margin-top: 0;
@@ -301,6 +332,20 @@ body {
 
     .dashboard-hero__copy {
         max-width: none;
+    }
+
+    .week-nav {
+        grid-template-columns: 1fr;
+        justify-items: start;
+    }
+
+    .week-nav__center {
+        justify-items: start;
+        text-align: left;
+    }
+
+    .week-nav__link:last-child {
+        justify-self: start;
     }
 
     .inline-grid {

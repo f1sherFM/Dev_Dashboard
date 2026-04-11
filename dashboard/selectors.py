@@ -20,8 +20,14 @@ def get_week_range(reference_date=None):
     return week_start, week_end
 
 
+def _build_week_link(target_date):
+    return f"{reverse('dashboard:weekly')}?date={target_date.isoformat()}"
+
+
 def get_weekly_summary(reference_date=None):
+    reference_date = reference_date or timezone.localdate()
     week_start, week_end = get_week_range(reference_date=reference_date)
+    current_week_start, current_week_end = get_week_range(reference_date=timezone.localdate())
 
     habits = list(Habit.objects.filter(is_active=True).order_by("name"))
     for habit in habits:
@@ -31,6 +37,7 @@ def get_weekly_summary(reference_date=None):
 
     habits_with_no_completions = [habit for habit in habits if habit.weekly_completion_count == 0]
     habits_completed_multiple_times = [habit for habit in habits if habit.weekly_completion_count >= 2]
+    total_weekly_habit_completions = sum(habit.weekly_completion_count for habit in habits)
 
     reviews_this_week = DailyReview.objects.filter(date__range=(week_start, week_end)).order_by("date")
     review_averages = reviews_this_week.aggregate(
@@ -48,13 +55,28 @@ def get_weekly_summary(reference_date=None):
     active_projects = ProjectSnapshot.objects.filter(is_active=True).order_by("name")
     stale_projects = active_projects.filter(last_updated__lt=week_start - timedelta(days=14))
 
+    if week_start < current_week_start:
+        week_label = "past week"
+    elif week_start > current_week_start:
+        week_label = "future week"
+    else:
+        week_label = "current week"
+
     return {
-        "reference_date": reference_date or timezone.localdate(),
+        "reference_date": reference_date,
         "week_start": week_start,
         "week_end": week_end,
+        "current_week_start": current_week_start,
+        "current_week_end": current_week_end,
+        "is_current_week": week_start == current_week_start,
+        "week_label": week_label,
+        "previous_week_url": _build_week_link(week_start - timedelta(days=1)),
+        "next_week_url": _build_week_link(week_end + timedelta(days=1)),
+        "current_week_url": reverse("dashboard:weekly"),
         "habits": habits,
         "habits_with_no_completions": habits_with_no_completions,
         "habits_completed_multiple_times": habits_completed_multiple_times,
+        "total_weekly_habit_completions": total_weekly_habit_completions,
         "review_count": reviews_this_week.count(),
         "review_dates": [review.date for review in reviews_this_week],
         "review_averages": review_averages,

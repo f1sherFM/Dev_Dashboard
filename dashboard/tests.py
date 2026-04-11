@@ -110,7 +110,7 @@ class DashboardSelectorTests(TestCase):
         self.assertEqual(week_end, date(2026, 4, 12))
 
     def test_get_weekly_summary_aggregates_cross_domain_data(self):
-        reference_date = date(2026, 4, 9)
+        reference_date = date(2026, 3, 12)
         habit_a = Habit.objects.create(
             name="Write",
             slug="write",
@@ -129,9 +129,9 @@ class DashboardSelectorTests(TestCase):
             unit="times",
             is_active=True,
         )
-        HabitEntry.objects.create(habit=habit_a, date=date(2026, 4, 7), value=1, note="")
-        HabitEntry.objects.create(habit=habit_a, date=date(2026, 4, 9), value=1, note="")
-        HabitEntry.objects.create(habit=habit_b, date=date(2026, 4, 8), value=0, note="")
+        HabitEntry.objects.create(habit=habit_a, date=date(2026, 3, 10), value=1, note="")
+        HabitEntry.objects.create(habit=habit_a, date=date(2026, 3, 12), value=1, note="")
+        HabitEntry.objects.create(habit=habit_b, date=date(2026, 3, 11), value=0, note="")
 
         Goal.objects.create(
             title="Active goal",
@@ -140,7 +140,7 @@ class DashboardSelectorTests(TestCase):
             type="career",
             status="active",
             priority="high",
-            deadline=date(2026, 4, 10),
+            deadline=date(2026, 3, 13),
             is_archived=False,
         )
         Goal.objects.create(
@@ -150,11 +150,11 @@ class DashboardSelectorTests(TestCase):
             type="career",
             status="completed",
             priority="medium",
-            completed_at=timezone.make_aware(datetime(2026, 4, 8, 10, 0)),
+            completed_at=timezone.make_aware(datetime(2026, 3, 11, 10, 0)),
             is_archived=False,
         )
         DailyReview.objects.create(
-            date=date(2026, 4, 7),
+            date=date(2026, 3, 10),
             mood="good",
             energy_level=7,
             focus_score=8,
@@ -165,7 +165,7 @@ class DashboardSelectorTests(TestCase):
             overall_score=8,
         )
         DailyReview.objects.create(
-            date=date(2026, 4, 9),
+            date=date(2026, 3, 12),
             mood="great",
             energy_level=9,
             focus_score=9,
@@ -182,7 +182,7 @@ class DashboardSelectorTests(TestCase):
             status="active",
             current_focus="Ship weekly summary",
             next_step="Polish page",
-            last_updated=date(2026, 4, 9),
+            last_updated=date(2026, 3, 12),
             is_active=True,
         )
         ProjectSnapshot.objects.create(
@@ -192,16 +192,16 @@ class DashboardSelectorTests(TestCase):
             status="paused",
             current_focus="Waiting",
             next_step="",
-            last_updated=date(2026, 3, 15),
+            last_updated=date(2026, 2, 20),
             is_active=True,
         )
 
         summary = get_weekly_summary(reference_date=reference_date)
 
-        self.assertEqual(summary["week_start"], date(2026, 4, 6))
-        self.assertEqual(summary["week_end"], date(2026, 4, 12))
+        self.assertEqual(summary["week_start"], date(2026, 3, 9))
+        self.assertEqual(summary["week_end"], date(2026, 3, 15))
         self.assertEqual(summary["review_count"], 2)
-        self.assertEqual(summary["review_dates"], [date(2026, 4, 7), date(2026, 4, 9)])
+        self.assertEqual(summary["review_dates"], [date(2026, 3, 10), date(2026, 3, 12)])
         self.assertEqual(summary["review_averages"]["overall_score_avg"], 8.5)
         habit_counts = {habit.slug: habit.weekly_completion_count for habit in summary["habits"]}
         self.assertEqual(habit_counts["write"], 2)
@@ -212,6 +212,10 @@ class DashboardSelectorTests(TestCase):
         self.assertEqual(summary["goals_near_deadline"].count(), 1)
         self.assertEqual(summary["active_projects"].count(), 2)
         self.assertEqual(summary["stale_projects"].count(), 1)
+        self.assertFalse(summary["is_current_week"])
+        self.assertEqual(summary["week_label"], "past week")
+        self.assertIn("date=2026-03-08", summary["previous_week_url"])
+        self.assertIn("date=2026-03-16", summary["next_week_url"])
 
 
 class DashboardHtmxFlowTests(TestCase):
@@ -271,13 +275,16 @@ class DashboardWeeklyPageTests(TestCase):
         self.assertContains(response, "Weekly Summary")
         self.assertContains(response, "Habits")
         self.assertContains(response, "Reviews")
+        self.assertContains(response, "Previous week")
+        self.assertContains(response, "Next week")
 
     def test_weekly_page_accepts_date_query_parameter(self):
         client = Client()
         client.login(username="weeklyuser", password="pass12345")
 
-        response = client.get("/dashboard/weekly/?date=2026-04-09")
+        response = client.get("/dashboard/weekly/?date=2026-03-12")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "April 6, 2026")
-        self.assertContains(response, "April 12, 2026")
+        self.assertContains(response, "March 9, 2026")
+        self.assertContains(response, "March 15, 2026")
+        self.assertContains(response, "Back to current week")
