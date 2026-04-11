@@ -9,7 +9,7 @@ from dashboard.selectors import get_dashboard_context, get_week_range, get_weekl
 from goals.models import Goal
 from habits.models import Habit, HabitEntry
 from projects_overview.models import ProjectSnapshot
-from reviews.models import DailyReview
+from reviews.models import DailyReview, WeeklyReflection
 
 
 class DashboardSelectorTests(TestCase):
@@ -195,6 +195,13 @@ class DashboardSelectorTests(TestCase):
             last_updated=date(2026, 2, 20),
             is_active=True,
         )
+        WeeklyReflection.objects.create(
+            week_start_date=date(2026, 3, 9),
+            wins="Kept momentum",
+            problems="A few delays",
+            lessons="Smaller scope wins",
+            next_week_focus="Close open work",
+        )
 
         summary = get_weekly_summary(reference_date=reference_date)
 
@@ -212,6 +219,9 @@ class DashboardSelectorTests(TestCase):
         self.assertEqual(summary["goals_near_deadline"].count(), 1)
         self.assertEqual(summary["active_projects"].count(), 2)
         self.assertEqual(summary["stale_projects"].count(), 1)
+        self.assertIsNotNone(summary["weekly_reflection"])
+        self.assertEqual(summary["weekly_reflection"].week_start_date, date(2026, 3, 9))
+        self.assertIn("date=2026-03-09", summary["weekly_reflection_url"])
         self.assertFalse(summary["is_current_week"])
         self.assertEqual(summary["week_label"], "past week")
         self.assertIn("date=2026-03-08", summary["previous_week_url"])
@@ -288,3 +298,31 @@ class DashboardWeeklyPageTests(TestCase):
         self.assertContains(response, "March 9, 2026")
         self.assertContains(response, "March 15, 2026")
         self.assertContains(response, "Back to current week")
+
+    def test_weekly_page_shows_write_reflection_action_when_missing(self):
+        client = Client()
+        client.login(username="weeklyuser", password="pass12345")
+
+        response = client.get("/dashboard/weekly/?date=2026-04-09")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Weekly reflection")
+        self.assertContains(response, "Write weekly reflection")
+
+    def test_weekly_page_shows_existing_reflection_and_edit_action(self):
+        WeeklyReflection.objects.create(
+            week_start_date=date(2026, 4, 6),
+            wins="Strong shipping",
+            problems="Low energy",
+            lessons="Stay focused",
+            next_week_focus="Close the last gaps",
+        )
+        client = Client()
+        client.login(username="weeklyuser", password="pass12345")
+
+        response = client.get("/dashboard/weekly/?date=2026-04-09")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Edit weekly reflection")
+        self.assertContains(response, "Strong shipping")
+        self.assertContains(response, "Close the last gaps")

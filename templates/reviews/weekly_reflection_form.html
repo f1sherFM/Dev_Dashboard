@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Reflection | Dev Dashboard{% endblock %}
+
+{% block content %}
+<section class="card">
+    <p class="eyebrow">Weekly Reflection</p>
+    <h1>
+        {% if reflection %}
+        Edit weekly reflection
+        {% else %}
+        Write weekly reflection
+        {% endif %}
+    </h1>
+    <p class="lead">Keep the review structured: what worked, what got in the way, what you learned, and what should matter next week.</p>
+    <p class="goal-meta">Week reference: {{ reference_date }}</p>
+
+    <form method="post" class="stack">
+        {% csrf_token %}
+        <div class="form-row">
+            <label for="{{ form.wins.id_for_label }}">Wins</label>
+            {{ form.wins }}
+            {{ form.wins.errors }}
+        </div>
+        <div class="form-row">
+            <label for="{{ form.problems.id_for_label }}">Problems</label>
+            {{ form.problems }}
+            {{ form.problems.errors }}
+        </div>
+        <div class="form-row">
+            <label for="{{ form.lessons.id_for_label }}">Lessons</label>
+            {{ form.lessons }}
+            {{ form.lessons.errors }}
+        </div>
+        <div class="form-row">
+            <label for="{{ form.next_week_focus.id_for_label }}">Next week focus</label>
+            {{ form.next_week_focus }}
+            {{ form.next_week_focus.errors }}
+        </div>
+        <div class="actions">
+            <button class="button" type="submit">Save weekly reflection</button>
+            <a href="{% url 'dashboard:weekly' %}?date={{ reference_date|date:'Y-m-d' }}">Back to weekly summary</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

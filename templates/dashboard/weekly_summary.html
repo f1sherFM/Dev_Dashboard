@@ -14,7 +14,7 @@
 
 {% if not is_current_week %}
 <section class="card dashboard-card dashboard-week-status">
-    <p><strong>You are viewing {{ week_start|date:"M j" }}–{{ week_end|date:"j" }} ({{ week_label }}).</strong></p>
+    <p><strong>You are viewing {{ week_start|date:"M j" }}-{{ week_end|date:"j" }} ({{ week_label }}).</strong></p>
     <div class="actions">
         <a class="button" href="{{ current_week_url }}">Back to current week</a>
     </div>
@@ -25,7 +25,7 @@
     <div class="dashboard-hero__copy">
         <p class="eyebrow">Weekly Summary</p>
         <h1>{{ week_start }} to {{ week_end }}</h1>
-        <p class="lead">A calm weekly readout across habits, reviews, goals, and active projects.</p>
+        <p class="lead">A calm weekly readout across habits, reviews, goals, active projects, and structured reflection.</p>
         <div class="actions">
             <a class="button" href="{% url 'dashboard:home' %}">Back to dashboard</a>
             <a class="button" href="{% url 'habits:list' %}">Open habits</a>
@@ -212,6 +212,44 @@
         <div class="actions">
             <a href="{% url 'projects_overview:list' %}">Open projects overview</a>
         </div>
+    </section>
+
+    <section class="card dashboard-card dashboard-card--full">
+        <div class="actions dashboard-card__header">
+            <h2>Weekly reflection</h2>
+            {% if weekly_reflection %}
+            <a href="{{ weekly_reflection_url }}">Edit weekly reflection</a>
+            {% else %}
+            <a href="{{ weekly_reflection_url }}">Write weekly reflection</a>
+            {% endif %}
+        </div>
+        {% if weekly_reflection %}
+        <div class="reflection-grid">
+            <div class="reflection-block">
+                <h3>Wins</h3>
+                <p>{{ weekly_reflection.wins|linebreaksbr|default:"No wins captured yet." }}</p>
+            </div>
+            <div class="reflection-block">
+                <h3>Problems</h3>
+                <p>{{ weekly_reflection.problems|linebreaksbr|default:"No problems captured yet." }}</p>
+            </div>
+            <div class="reflection-block">
+                <h3>Lessons</h3>
+                <p>{{ weekly_reflection.lessons|linebreaksbr|default:"No lessons captured yet." }}</p>
+            </div>
+            <div class="reflection-block">
+                <h3>Next week focus</h3>
+                <p>{{ weekly_reflection.next_week_focus|linebreaksbr|default:"No next-week focus captured yet." }}</p>
+            </div>
+        </div>
+        <p class="goal-meta">Reflection stays structured on purpose: wins, problems, lessons, and next week focus.</p>
+        {% else %}
+        <p><strong>No weekly reflection has been written for this week yet.</strong></p>
+        <p class="goal-meta">Use a short structured reflection to close the week: what worked, what got in the way, what you learned, and what should matter next week.</p>
+        <div class="actions">
+            <a class="button" href="{{ weekly_reflection_url }}">Write weekly reflection</a>
+        </div>
+        {% endif %}
     </section>
 </section>
 {% endblock %}

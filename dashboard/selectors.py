@@ -11,6 +11,7 @@ from habits.models import Habit, HabitEntry
 from habits.selectors import get_habit_progress
 from projects_overview.models import ProjectSnapshot
 from reviews.models import DailyReview
+from reviews.selectors import get_weekly_reflection
 
 
 def get_week_range(reference_date=None):
@@ -28,6 +29,7 @@ def get_weekly_summary(reference_date=None):
     reference_date = reference_date or timezone.localdate()
     week_start, week_end = get_week_range(reference_date=reference_date)
     current_week_start, current_week_end = get_week_range(reference_date=timezone.localdate())
+    weekly_reflection = get_weekly_reflection(reference_date=reference_date)
 
     habits = list(Habit.objects.filter(is_active=True).order_by("name"))
     for habit in habits:
@@ -80,6 +82,8 @@ def get_weekly_summary(reference_date=None):
         "review_count": reviews_this_week.count(),
         "review_dates": [review.date for review in reviews_this_week],
         "review_averages": review_averages,
+        "weekly_reflection": weekly_reflection,
+        "weekly_reflection_url": f"{reverse('reviews:weekly-reflection')}?date={week_start.isoformat()}",
         "active_goals": active_goals,
         "goals_completed_this_week": goals_completed_this_week,
         "goals_near_deadline": goals_near_deadline,

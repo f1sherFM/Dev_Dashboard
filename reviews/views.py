@@ -1,11 +1,13 @@
-from datetime import date
+from datetime import date, datetime
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
 
-from .forms import DailyReviewForm
-from .selectors import get_review_by_date, get_reviews_for_history
-from .services import create_or_update_review
+from .forms import DailyReviewForm, WeeklyReflectionForm
+from .selectors import get_review_by_date, get_reviews_for_history, get_weekly_reflection
+from .services import create_or_update_review, create_or_update_weekly_reflection
 
 
 def _render_today_review_block(request, *, form, review, today):
@@ -53,3 +55,40 @@ def review_history_view(request):
 def review_detail_view(request, review_date):
     review = get_object_or_404(get_review_by_date(review_date))
     return render(request, "reviews/review_detail.html", {"review": review})
+
+
+@login_required
+def weekly_reflection_view(request):
+    raw_date = request.GET.get("date")
+    reference_date = timezone.localdate()
+    if raw_date:
+        try:
+            reference_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
+        except ValueError:
+            reference_date = timezone.localdate()
+
+    reflection = get_weekly_reflection(reference_date=reference_date)
+
+    if request.method == "POST":
+        form = WeeklyReflectionForm(request.POST, instance=reflection)
+        if form.is_valid():
+            reflection = create_or_update_weekly_reflection(
+                reference_date=reference_date,
+                wins=form.cleaned_data["wins"],
+                problems=form.cleaned_data["problems"],
+                lessons=form.cleaned_data["lessons"],
+                next_week_focus=form.cleaned_data["next_week_focus"],
+            )
+            return redirect(f"{reverse('dashboard:weekly')}?date={reflection.week_start_date.isoformat()}")
+    else:
+        form = WeeklyReflectionForm(instance=reflection)
+
+    return render(
+        request,
+        "reviews/weekly_reflection_form.html",
+        {
+            "form": form,
+            "reflection": reflection,
+            "reference_date": reference_date,
+        },
+    )

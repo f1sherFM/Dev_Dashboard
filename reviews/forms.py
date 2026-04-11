@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import DailyReview
+from .models import DailyReview, WeeklyReflection
 
 
 class DailyReviewForm(forms.ModelForm):
@@ -23,4 +23,16 @@ class DailyReviewForm(forms.ModelForm):
             "problems": forms.Textarea(attrs={"rows": 3}),
             "lessons": forms.Textarea(attrs={"rows": 3}),
             "tomorrow_plan": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class WeeklyReflectionForm(forms.ModelForm):
+    class Meta:
+        model = WeeklyReflection
+        fields = ("wins", "problems", "lessons", "next_week_focus")
+        widgets = {
+            "wins": forms.Textarea(attrs={"rows": 3}),
+            "problems": forms.Textarea(attrs={"rows": 3}),
+            "lessons": forms.Textarea(attrs={"rows": 3}),
+            "next_week_focus": forms.Textarea(attrs={"rows": 3}),
         }

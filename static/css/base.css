@@ -150,6 +150,10 @@ body {
     margin: 0;
 }
 
+.dashboard-card--full {
+    grid-column: 1 / -1;
+}
+
 .dashboard-card__header {
     align-items: baseline;
     justify-content: space-between;
@@ -310,6 +314,21 @@ body {
     color: #52606d;
 }
 
+.reflection-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.reflection-block h3 {
+    margin: 0 0 0.5rem;
+}
+
+.reflection-block p {
+    margin: 0;
+    line-height: 1.6;
+}
+
 @media (max-width: 640px) {
     .dashboard-hero,
     .dashboard-grid,
@@ -349,6 +368,10 @@ body {
     }
 
     .inline-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .reflection-grid {
         grid-template-columns: 1fr;
     }
 
